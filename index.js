@@ -14,6 +14,8 @@ module.exports = function(options) {
         return;
     }
 
+    var realPass = options.realPass;
+
     var router = express.Router();
 
 
@@ -36,10 +38,10 @@ module.exports = function(options) {
                 req.session.rank = 4;
                 res.redirect("/minecraft/");
             } else {
-                res.redirect("/user/?wrongpass=true");
+                res.redirect("/session/?wrongpass=true");
             }
         } else {
-            res.redirect("/user/?wrongpass=true");
+            res.redirect("/session/?wrongpass=true");
         }
     });
 
