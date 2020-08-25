@@ -1,9 +1,14 @@
 const path = require("path");
 const express = require("express");
 var session = require('express-session');
+var SQLiteStore = require('connect-sqlite3')(session);
 
 function isDef(v) {
     return (typeof v !== "undefined");
+}
+
+function isConnected(sess) {
+    return (typeof sess !== 'undefined' && typeof sess.username !== 'undefined' && typeof sess.id !== 'undefined');
 }
 
 module.exports = function(options) {
@@ -15,11 +20,12 @@ module.exports = function(options) {
         return;
     }
 
-    var FileStore = require('session-file-store')(session);
-    var fileStoreOptions = {};
-
     app.use(session({
-        store: new FileStore(fileStoreOptions),
+        store: new SQLiteStore({
+            table: "sessions",
+            db: "sessionsDB",
+            dir: __dirname
+        }),
         secret: process.env.SESSION_SECRET,
         saveUninitialized: true,
         resave: true
@@ -57,15 +63,16 @@ module.exports = function(options) {
     });
 
     router.get('/disconnect', function(req, res) {
-        isConnected(req.session, function() {
+        if(isConnected(req.session)) {
             req.session.destroy(function(err) {
-              if (err) {
-                logError(err);
-              }
-          });
-        }, function() {
+                if (err) {
+                    logError(err);
+                }
+                res.redirect('/');
+            });
+        } else {
             res.redirect('/');
-        });
+        }
     });
 
     app.use("/session/", router);
