@@ -20,13 +20,18 @@ module.exports = function(options) {
         return;
     }
 
+    if(!isDef(options.sessionSecret)) {
+        throw new Error("You need to specify a cookie session secret in the options");
+        return;
+    }
+
     app.use(session({
         store: new SQLiteStore({
             table: "sessions",
             db: "sessionsDB",
             dir: __dirname
         }),
-        secret: process.env.SESSION_SECRET,
+        secret: options.sessionSecret,
         saveUninitialized: true,
         resave: true
     }));
