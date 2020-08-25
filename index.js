@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+var session = require('express-session');
 
 function isDef(v) {
     return (typeof v !== "undefined");
@@ -13,6 +14,16 @@ module.exports = function(options) {
         throw new Error("You need to specify an admin password in the options");
         return;
     }
+
+    var FileStore = require('session-file-store')(session);
+    var fileStoreOptions = {};
+
+    app.use(session({
+        store: new FileStore(fileStoreOptions),
+        secret: process.env.SESSION_SECRET,
+        saveUninitialized: true,
+        resave: true
+    }));
 
     var realPass = options.realPass;
 

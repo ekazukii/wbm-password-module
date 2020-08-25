@@ -17,6 +17,7 @@
   "homepage": "https://github.com/ekazukii/wbm-password-module.git",
   "description": "",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "session-file-store": "^1.4.0"
   }
 }
