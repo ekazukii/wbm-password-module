@@ -17,6 +17,7 @@
   "homepage": "https://github.com/ekazukii/wbm-password-module.git",
   "description": "",
   "dependencies": {
+    "connect-sqlite3": "^0.9.11",
     "express": "^4.17.1"
   }
 }

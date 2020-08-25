@@ -1,8 +1,14 @@
 const path = require("path");
 const express = require("express");
+var session = require('express-session');
+var SQLiteStore = require('connect-sqlite3')(session);
 
 function isDef(v) {
     return (typeof v !== "undefined");
+}
+
+function isConnected(sess) {
+    return (typeof sess !== 'undefined' && typeof sess.username !== 'undefined' && typeof sess.id !== 'undefined');
 }
 
 module.exports = function(options) {
@@ -13,6 +19,22 @@ module.exports = function(options) {
         throw new Error("You need to specify an admin password in the options");
         return;
     }
+
+    if(!isDef(options.sessionSecret)) {
+        throw new Error("You need to specify a cookie session secret in the options");
+        return;
+    }
+
+    app.use(session({
+        store: new SQLiteStore({
+            table: "sessions",
+            db: "sessionsDB",
+            dir: __dirname
+        }),
+        secret: options.sessionSecret,
+        saveUninitialized: true,
+        resave: true
+    }));
 
     var realPass = options.realPass;
 
@@ -46,15 +68,16 @@ module.exports = function(options) {
     });
 
     router.get('/disconnect', function(req, res) {
-        isConnected(req.session, function() {
+        if(isConnected(req.session)) {
             req.session.destroy(function(err) {
-              if (err) {
-                logError(err);
-              }
-          });
-        }, function() {
+                if (err) {
+                    logError(err);
+                }
+                res.redirect('/');
+            });
+        } else {
             res.redirect('/');
-        });
+        }
     });
 
     app.use("/session/", router);
